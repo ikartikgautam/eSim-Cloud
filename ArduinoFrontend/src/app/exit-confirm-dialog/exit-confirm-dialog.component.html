@@ -1,0 +1,9 @@
+<mat-dialog-title>Do you want to exit?</mat-dialog-title>
+<mat-dialog-content>
+  <div class="btn-div">
+    <button mat-raised-button color="warn" (click)="exit('ws')">Exit Without Saving</button>
+    <button mat-raised-button color="primary" (click)="exit('ts')">Save in Temporary Storage & Exit</button>
+    <button mat-raised-button color="primary" (click)="exit('cs')">Save on Cloud & Exit</button>
+    <button mat-raised-button color="warn" (click)="exit()">Do nothing</button>
+  </div>
+</mat-dialog-content>

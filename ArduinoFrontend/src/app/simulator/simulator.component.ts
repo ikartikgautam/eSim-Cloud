@@ -15,6 +15,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { AlertService } from '../alert/alert-service/alert.service';
 import { LayoutUtils } from '../layout/ArduinoCanvasInterface';
+import { ExitConfirmDialogComponent } from '../exit-confirm-dialog/exit-confirm-dialog.component';
 /**
  * Declare Raphael so that build don't throws error
  */
@@ -600,4 +601,14 @@ export class SimulatorComponent implements OnInit, OnDestroy {
       window['hideLoading']();
     }
   }
+
+  openMenuIcon() {
+    console.log("Navigate")
+    this.dialog.open(ExitConfirmDialogComponent, { data: '' }).afterClosed().subscribe(closeRes => {
+      console.log(closeRes)
+      if (closeRes == 'ws')
+        this.router.navigate(['/'])
+    })
+  }
+
 }

@@ -1,0 +1,8 @@
+.btn-div{
+    display: flex;
+    flex-direction: column;
+}
+.btn-div button{
+    width: 100%;
+    margin: 8px 0;
+}
