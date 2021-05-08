@@ -604,10 +604,29 @@ export class SimulatorComponent implements OnInit, OnDestroy {
 
   openMenuIcon() {
     console.log("Navigate")
-    this.dialog.open(ExitConfirmDialogComponent, { data: '' }).afterClosed().subscribe(closeRes => {
-      console.log(closeRes)
-      if (closeRes == 'ws')
-        this.router.navigate(['/'])
+
+    this.saveProjectTemporarily().then(res => {
+      console.log('======>', res)
+      this.router.navigate(['/'])
+    }).catch(err => console.log(err))
+
+    // this.dialog.open(ExitConfirmDialogComponent, { data: '' }).afterClosed().subscribe(closeRes => {
+    //   console.log(closeRes)
+    //   if (closeRes == 'ws')
+    //     this.router.navigate(['/'])
+    //   else if (closeRes == 'ts') {
+    //     this.SaveProjectOff();
+    //   }
+    // })
+  }
+
+  saveProjectTemporarily() {
+    return new Promise((resolve, reject) => {
+      Workspace.SaveCircuitTemporarily(this.projectTitle, this.description, null, this.projectId).then(done => {
+        resolve(true)
+      }).catch(err => {
+        reject(false)
+      })
     })
   }
 

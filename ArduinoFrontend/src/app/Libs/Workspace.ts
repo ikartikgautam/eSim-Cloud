@@ -6,6 +6,7 @@ import { Download, ImageType } from './Download';
 import { isNull, isUndefined } from 'util';
 import { SaveOffline } from './SaveOffiline';
 import { Point } from './Point';
+import { SaveTemporarily } from './SaveTemporarily';
 
 /**
  * Declare window so that custom created function don't throw error
@@ -1050,4 +1051,64 @@ export class Workspace {
     // Hide Loading animation
     window.hideLoading();
   }
+
+  /**
+   * Function saves the circuit Offline
+   * @param name string
+   * @param description string
+   * @param callback any
+   * @param id number
+   */
+  static SaveCircuitTemporarily(name: string = '', description: string = '', callback: any = null, id: number = null) {
+
+    id = Date.now();
+
+    // Default Save object
+    const saveObj = {
+      valid: true,
+      id,
+      canvas: {
+        x: Workspace.translateX,
+        y: Workspace.translateY,
+        scale: Workspace.scale
+      },
+      project: {
+        name,
+        description,
+        created_at: Date.now(),
+        updated_at: Date.now()
+      }
+    };
+
+    // For each item in the scope
+    for (const key in window.scope) {
+      // if atleast one component is present
+      if (window.scope[key] && window.scope[key].length > 0) {
+        saveObj[key] = [];
+        // Add the component to the save object
+        for (const item of window.scope[key]) {
+          if (item.save) {
+            saveObj[key].push(item.save());
+          }
+        }
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      // Save the Thumbnail for the circuit
+      Download.ExportImage(ImageType.PNG).then(v => {
+        saveObj.project['image'] = v; // Add the base64 image
+        // console.log(saveObj);
+        // Save or Update Circuit Ofline
+        // SaveOffline.Update(saveObj);
+        SaveTemporarily.SaveProgress(saveObj).then(done => {
+          console.log('==>', true)
+          resolve(true)
+        }).catch(er => reject(false))
+
+      });
+    })
+
+  }
+
 }

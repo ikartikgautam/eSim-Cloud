@@ -15,8 +15,8 @@ export class ExitConfirmDialogComponent implements OnInit {
   }
 
   exit(choice: string = null) {
-    if (choice == 'ws') {
       this.dialogRef.close('ws')
+    if (choice == 'ws') {
     } else if (choice == 'ts') {
       this.dialogRef.close('ts')
     } else if (choice == 'cs') {
