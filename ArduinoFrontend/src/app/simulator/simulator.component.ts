@@ -16,6 +16,7 @@ import { environment } from 'src/environments/environment';
 import { AlertService } from '../alert/alert-service/alert.service';
 import { LayoutUtils } from '../layout/ArduinoCanvasInterface';
 import { ExitConfirmDialogComponent } from '../exit-confirm-dialog/exit-confirm-dialog.component';
+import { SaveTemporarily } from '../Libs/SaveTemporarily';
 /**
  * Declare Raphael so that build don't throws error
  */
@@ -178,7 +179,17 @@ export class SimulatorComponent implements OnInit, OnDestroy {
             this.LoadProject(data);
           });
         }
-      } else if (v.id) {
+      }
+      else if (v.id && v.temporary == 'true') {
+        // if project id is present then project is read from offline
+        this.projectId = parseInt(v.id, 10);
+        if (this.projectId) {
+          SaveTemporarily.ReadTemporaryProject(this.projectId, (data) => {
+            this.LoadProject(data);
+          });
+        }
+      }
+      else if (v.id) {
         this.projectId = v.id;
         this.LoadOnlineProject(v.id);
       }

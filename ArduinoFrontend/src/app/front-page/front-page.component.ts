@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { Router } from '@angular/router';
+import { ExitConfirmDialogComponent } from '../exit-confirm-dialog/exit-confirm-dialog.component';
+import { SaveTemporarily } from '../Libs/SaveTemporarily';
 
 /**
  * Class For Front page contains Seven Segment animation logic
@@ -38,7 +42,10 @@ export class FrontPageComponent implements OnInit {
   /**
    * Constructor For Front page
    */
-  constructor() { }
+  constructor(
+    private _router: Router,
+    private _dialog: MatDialog,
+  ) { }
   /**
    * On Init Front page
    */
@@ -70,4 +77,16 @@ export class FrontPageComponent implements OnInit {
       }
     }, 1000);
   }
+
+  openSimulator() {
+    SaveTemporarily.checkAvailableProjects().then(result => {
+
+      if (result.length != 0)
+        this._dialog.open(ExitConfirmDialogComponent, { data: result[0] })
+      else
+        this._router.navigate(['/simulator'])
+
+    }).catch(err => { console.log(err) })
+  }
+
 }

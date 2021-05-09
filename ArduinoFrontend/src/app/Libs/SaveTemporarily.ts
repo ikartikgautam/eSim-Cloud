@@ -76,6 +76,14 @@ export class SaveTemporarily {
         })
     }
 
+    static getDbInstanceAndClearDb() {
+        return new Promise((resolve, reject) => {
+            if (!SaveTemporarily.Check(db => {
+                this.clearDb(db).then(res => resolve(true)).catch(err => reject(false))
+            })) { }
+        })
+    }
+
     /**
      * Function to save progress of project
      */
@@ -105,6 +113,36 @@ export class SaveTemporarily {
             }
 
         })
+    }
+
+    static checkAvailableProjects() {
+        return new Promise<any[]>((resolve, reject) => {
+            if (!SaveTemporarily.Check(db => {
+                const ok = db.transaction(['temporary'], 'readwrite')
+                    .objectStore('temporary').getAll();
+                ok.onsuccess = (_) => { resolve(ok.result); }
+                ok.onerror = (_) => { AlertService.showAlert('Unable to retrieve data from database!'); reject(false); }
+            })) {
+            }
+        })
+    }
+
+    static ReadTemporaryProject(id, callback: (data: any) => void = null) {
+        if (!SaveTemporarily.Check(db => {
+            const transaction = db.transaction(['temporary']);
+            const objectStore = transaction.objectStore('temporary');
+            const ok = objectStore.get(parseInt(id, 10));
+
+            ok.onerror = () => {
+                AlertService.showAlert('Unable to retrieve data from database!');
+            };
+
+            ok.onsuccess = () => {
+                callback(ok.result);
+            };
+        })) {
+            return;
+        }
     }
 
 }
