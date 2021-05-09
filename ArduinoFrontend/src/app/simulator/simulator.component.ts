@@ -180,8 +180,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
           });
         }
       }
-      else if (v.id && v.temporary == 'true') {
-        // if project id is present then project is read from offline
+      else if (v.id && v.temporary == 'true') { // if id is present and project is temporarily saved in temporary DB
+        // if project id is present then project is read from temporary DB
         this.projectId = parseInt(v.id, 10);
         if (this.projectId) {
           SaveTemporarily.ReadTemporaryProject(this.projectId, (data) => {

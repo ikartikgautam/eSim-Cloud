@@ -11,7 +11,7 @@
       <div class="row" style="margin: 1em;">
         <div class="col-md-3" *ngFor="let item of samples; let i = index">
           {{ DateTime(item) }}
-          <div class="subbox" [routerLink]="['/simulator']" [queryParams]="{gallery:i}">
+          <div class="subbox" (click)="openFromGallery(i)">
             <div>
               <div style="width: 100%;  background-color: #e8e8e8;">
                 <img class="item-img" style="border-radius: 5px;" src="./assets/samples/{{item.base64_image}}"

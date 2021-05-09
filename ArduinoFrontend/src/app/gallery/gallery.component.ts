@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { Router } from '@angular/router';
 import { ApiService } from '../api.service';
+import { ExitConfirmDialogComponent } from '../exit-confirm-dialog/exit-confirm-dialog.component';
+import { SaveTemporarily } from '../Libs/SaveTemporarily';
 
 /**
  * For Handling Time ie. Prevent moment error
@@ -23,7 +27,11 @@ export class GalleryComponent implements OnInit {
    * Gallery Page Constructor
    * @param api API Service
    */
-  constructor(private api: ApiService) { }
+  constructor(
+    private api: ApiService,
+    private _router: Router,
+    private _dialog: MatDialog,
+  ) { }
 
   /**
    * On Init Page
@@ -52,5 +60,19 @@ export class GalleryComponent implements OnInit {
    */
   DateTime(item) {
     item.time = moment(item.create_time).fromNow();
+  }
+
+  openFromGallery(index) {
+    // [routerLink]="['/simulator']" [queryParams]="{gallery:i}"
+
+    SaveTemporarily.checkAvailableProjects().then(result => {
+
+      if (result.length != 0)
+        this._dialog.open(ExitConfirmDialogComponent, { data: { dbResult: result[0], type: 'gallery', index: index }, maxWidth: '300px' })
+      else
+        this._router.navigate(['simulator'], { queryParams: { gallery: index } })
+
+    }).catch(err => { console.log(err) })
+
   }
 }

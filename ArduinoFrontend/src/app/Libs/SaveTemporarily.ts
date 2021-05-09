@@ -11,9 +11,9 @@ declare var window;
 export class SaveTemporarily {
 
     /**
- * Check if IndexedDB exist if not show alert
- * @param callback If IndexedDB exist call the callback
- */
+     * Check if IndexedDB exist if not show alert
+     * @param callback If IndexedDB exist call the callback
+     */
     static Check(callback: (result: any) => void = null) {
         // check db exist
         if (window.indexedDB) {
@@ -27,7 +27,7 @@ export class SaveTemporarily {
         // if exist create/open project database
         if (window.indexedDB) {
 
-            const request = window.indexedDB.open('projects', 1);
+            const request = window.indexedDB.open('temporaryDB', 1);
 
             // Database was not able to open/create
             request.onerror = (err) => {
@@ -44,7 +44,7 @@ export class SaveTemporarily {
             // Create Object Store on success
             request.onupgradeneeded = (event) => {
                 const datab = event.target.result;
-                if (!datab.objectStoreNames.contains('projects')) {
+                if (!datab.objectStoreNames.contains('temporaryDB')) {
                     datab.createObjectStore('temporary', { keyPath: 'id' });
                 }
             };
@@ -59,7 +59,7 @@ export class SaveTemporarily {
 
     /**
      * Function to clear DB
-     * @param db 
+     * @param db instance
      * @returns Promise
      */
     static clearDb(db) {
@@ -76,16 +76,21 @@ export class SaveTemporarily {
         })
     }
 
+    /**
+     * Get instance of DB & invoke clear DB
+     * @returns Promise
+     */
     static getDbInstanceAndClearDb() {
         return new Promise((resolve, reject) => {
             if (!SaveTemporarily.Check(db => {
-                this.clearDb(db).then(res => resolve(true)).catch(err => reject(false))
+                this.clearDb(db).then(res => resolve(true)).catch(err => { console.error(err); reject(false) })
             })) { }
         })
     }
 
     /**
      * Function to save progress of project
+     * @returns Promise
      */
     static SaveProgress(mydata, callback: (data: any) => void = null) {
         return new Promise((resolve, reject) => {
@@ -105,6 +110,7 @@ export class SaveTemporarily {
                         }
                     };
                 }).catch(err => {
+                    console.error(err);
                     reject(false)
                 })
 
@@ -115,6 +121,10 @@ export class SaveTemporarily {
         })
     }
 
+    /**
+     * Read all data from temporary DB
+     * @returns Promise
+     */
     static checkAvailableProjects() {
         return new Promise<any[]>((resolve, reject) => {
             if (!SaveTemporarily.Check(db => {
@@ -127,6 +137,12 @@ export class SaveTemporarily {
         })
     }
 
+    /**
+     * Read Project from Temporary DB
+     * @param id id of project
+     * @param callback 
+     * @returns Promise
+     */
     static ReadTemporaryProject(id, callback: (data: any) => void = null) {
         if (!SaveTemporarily.Check(db => {
             const transaction = db.transaction(['temporary']);

@@ -78,11 +78,14 @@ export class FrontPageComponent implements OnInit {
     }, 1000);
   }
 
+  /**
+   * Check if any data is in temporary DB
+   */
   openSimulator() {
     SaveTemporarily.checkAvailableProjects().then(result => {
 
       if (result.length != 0)
-        this._dialog.open(ExitConfirmDialogComponent, { data: result[0] })
+        this._dialog.open(ExitConfirmDialogComponent, { data: result[0],maxWidth: '300px' })
       else
         this._router.navigate(['/simulator'])
 

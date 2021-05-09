@@ -1053,7 +1053,7 @@ export class Workspace {
   }
 
   /**
-   * Function saves the circuit Offline
+   * Function saves the circuit Temporarily in Temporary DB
    * @param name string
    * @param description string
    * @param callback any
@@ -1098,14 +1098,10 @@ export class Workspace {
       // Save the Thumbnail for the circuit
       Download.ExportImage(ImageType.PNG).then(v => {
         saveObj.project['image'] = v; // Add the base64 image
-        // console.log(saveObj);
-        // Save or Update Circuit Ofline
-        // SaveOffline.Update(saveObj);
+        // Save Circuit Temporarily
         SaveTemporarily.SaveProgress(saveObj).then(done => {
-          console.log('==>', true)
           resolve(true)
         }).catch(er => reject(false))
-
       });
     })
 

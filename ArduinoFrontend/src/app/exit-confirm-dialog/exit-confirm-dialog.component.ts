@@ -11,43 +11,42 @@ import { SaveTemporarily } from '../Libs/SaveTemporarily';
 export class ExitConfirmDialogComponent implements OnInit {
 
   dbProject = null
+  galleryIndex = null
 
   constructor(public dialogRef: MatDialogRef<ExitConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data,
     private _router: Router) {
-    this.dbProject = data;
+    if (data.type == 'gallery') {
+      this.galleryIndex = data.index
+      this.dbProject = data.dbResult;
+    }else{
+      this.dbProject = data;
+    }
   }
 
   ngOnInit() {
   }
 
-  exit(choice: string = null) {
-    this.dialogRef.close('ws')
-    if (choice == 'ws') {
-    } else if (choice == 'ts') {
-      this.dialogRef.close('ts')
-    } else if (choice == 'cs') {
-      this.dialogRef.close('cs')
-    } else {
-      this.dialogRef.close(null)
-    }
-  }
-
+  /**
+   * Open already existing project from temporary DB
+   */
   GoToOld() {
     console.log('old')
     console.log(this.dbProject)
     this._router.navigate(['/simulator'], { queryParams: { id: this.dbProject.id, temporary: true } })
     this.dialogRef.close();
-    /**
-     * Navigate to simulator
-     * load project from memory
-     * clear temporary DB
-     */
   }
 
+  /**
+   * Open New project after clearing DB
+   */
   openNew() {
     SaveTemporarily.getDbInstanceAndClearDb().then(res => {
-      this._router.navigate(['/simulator'])
+      if (this.galleryIndex)
+        this._router.navigate(['simulator'], { queryParams: { gallery: this.galleryIndex } })
+      else
+        this._router.navigate(['/simulator'])
+
       this.dialogRef.close();
     }).catch(err => {
       console.log(err)
