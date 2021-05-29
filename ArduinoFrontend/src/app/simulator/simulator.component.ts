@@ -131,6 +131,9 @@ export class SimulatorComponent implements OnInit, OnDestroy {
     if (environment.production) {
       window.removeEventListener('beforeunload', Workspace.BeforeUnload);
     }
+    // Make Redo & Undo Stack empty
+    Workspace.redoStack = []
+    Workspace.undoStack = []
   }
   /**
    * On Init Callback
@@ -383,6 +386,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
    * @param key string
    */
   dragStart(event: DragEvent, key: string) {
+    console.info("Element Drag")
+    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
     event.dataTransfer.dropEffect = 'copyMove';
     event.dataTransfer.setData('text', key);
   }
@@ -399,6 +404,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
 
   autoLayout() {
+    console.info("Auto Lauout")
+    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
     // this.isAutoLayoutInProgress = true;
     LayoutUtils.solveAutoLayout();
     // this.isAutoLayoutInProgress = false;
@@ -425,11 +432,15 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
   /** Function deletes the component */
   delete() {
+    console.info("Delete Element")
+    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
     Workspace.DeleteComponent();
     Workspace.hideContextMenu();
   }
   /** Function pastes the component */
   paste() {
+    console.info("Paste Element")
+    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
     Workspace.pasteComponent();
     Workspace.hideContextMenu();
   }
@@ -500,6 +511,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
   /** Function clear variables in the Workspace */
   ClearProject() {
+    console.info("Clear Element")
+    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
     Workspace.ClearWorkspace();
     this.closeProject();
   }
@@ -628,6 +641,23 @@ export class SimulatorComponent implements OnInit, OnDestroy {
       // Load the data object and change into workspace
       this.LoadProject(JSON.parse(data as string));
     };
+  }
+
+  undoChange() {
+    console.log('Undo')
+    Workspace.workspaceUndo()
+  }
+
+  redoChange() {
+    console.log('Redo')
+    Workspace.workspaceRedo()
+  }
+
+  enableButton(type){
+    if(type=='undo')
+    return Workspace.undoStack.length<=0
+    else if(type=='redo')
+    return Workspace.redoStack.length<=0
   }
 
 }

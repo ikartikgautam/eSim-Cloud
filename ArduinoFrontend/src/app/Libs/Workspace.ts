@@ -55,6 +55,16 @@ export class Workspace {
    */
   static simulating = false;
 
+  /**
+   * Stack for Undo functionality
+   */
+  static undoStack = [];
+
+  /**
+   * Stack for Redo functionality
+   */
+  static redoStack = [];
+
   /** function to zoom in workspace */
   static zoomIn() {
     Workspace.scale = Math.min(10, Workspace.scale + Workspace.zooomIncrement);
@@ -303,6 +313,7 @@ export class Workspace {
     if (window['isSelected'] && (window['Selected'] instanceof Wire)) {
       // if selected item is wire and it is not connected then add the point
       if (window.Selected.end == null) {
+        Workspace.pushWorkSpaceChange();
         const pt = Workspace.svgPoint(event.clientX, event.clientY);
         window.Selected.addPoint(pt.x, pt.y, event.shiftKey);
         return;
@@ -763,7 +774,6 @@ export class Workspace {
 
   /** Function to delete component fro Workspace */
   static DeleteComponent() {
-
     // Check if component is selected
     if (window['Selected']) {
       // is selected component is an arduini uno then show confirm message
@@ -1120,6 +1130,53 @@ export class Workspace {
       }
     }
     return true;
+  }
+
+  static getWorkspaceSaveChange() {
+
+    // Default Save object
+    const saveObj = {
+      canvas: {
+        x: Workspace.translateX,
+        y: Workspace.translateY,
+        scale: Workspace.scale
+      }
+    };
+
+    // For each item in the scope
+    for (const key in window.scope) {
+      // if atleast one component is present
+      if (window.scope[key] && window.scope[key].length > 0) {
+        saveObj[key] = [];
+        // Add the component to the save object
+        for (const item of window.scope[key]) {
+          if (item.save) {
+            saveObj[key].push(item.save());
+          }
+        }
+      }
+    }
+
+    return saveObj;
+  }
+
+  static workspaceUndo() {
+    if (this.undoStack.length > 0) {
+      this.redoStack.push(this.getWorkspaceSaveChange())
+      this.Load(this.undoStack.pop())
+    }
+  }
+
+  static workspaceRedo() {
+    if (this.redoStack.length > 0) {
+      this.undoStack.push(this.getWorkspaceSaveChange())
+      this.Load(this.redoStack.pop())
+    }
+  }
+
+  static pushWorkSpaceChange() {
+    this.redoStack = []
+    this.undoStack.push(this.getWorkspaceSaveChange())
   }
 
 }
