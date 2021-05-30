@@ -16,6 +16,7 @@ import { environment } from 'src/environments/environment';
 import { AlertService } from '../alert/alert-service/alert.service';
 import { LayoutUtils } from '../layout/ArduinoCanvasInterface';
 import { ExportJSONDialogComponent } from '../export-jsondialog/export-jsondialog.component';
+import { UndoUtils } from '../Libs/UndoUtils';
 /**
  * Declare Raphael so that build don't throws error
  */
@@ -132,8 +133,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
       window.removeEventListener('beforeunload', Workspace.BeforeUnload);
     }
     // Make Redo & Undo Stack empty
-    Workspace.redoStack = []
-    Workspace.undoStack = []
+    UndoUtils.redoStack = []
+    UndoUtils.undoStack = []
   }
   /**
    * On Init Callback
@@ -386,8 +387,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
    * @param key string
    */
   dragStart(event: DragEvent, key: string) {
-    console.info("Element Drag")
-    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
+    // Save Dump of current Workspace
+    UndoUtils.pushWorkSpaceChange();
     event.dataTransfer.dropEffect = 'copyMove';
     event.dataTransfer.setData('text', key);
   }
@@ -404,8 +405,8 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
 
   autoLayout() {
-    console.info("Auto Lauout")
-    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
+    // Save Dump of current Workspace
+    UndoUtils.pushWorkSpaceChange();
     // this.isAutoLayoutInProgress = true;
     LayoutUtils.solveAutoLayout();
     // this.isAutoLayoutInProgress = false;
@@ -432,15 +433,11 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
   /** Function deletes the component */
   delete() {
-    console.info("Delete Element")
-    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
     Workspace.DeleteComponent();
     Workspace.hideContextMenu();
   }
   /** Function pastes the component */
   paste() {
-    console.info("Paste Element")
-    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
     Workspace.pasteComponent();
     Workspace.hideContextMenu();
   }
@@ -511,8 +508,7 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
   /** Function clear variables in the Workspace */
   ClearProject() {
-    console.info("Clear Element")
-    Workspace.undoStack.push(Workspace.getWorkspaceSaveChange())
+    UndoUtils.pushWorkSpaceChange();
     Workspace.ClearWorkspace();
     this.closeProject();
   }
@@ -644,20 +640,20 @@ export class SimulatorComponent implements OnInit, OnDestroy {
   }
 
   undoChange() {
-    console.log('Undo')
-    Workspace.workspaceUndo()
+    UndoUtils.workspaceUndo();
   }
 
   redoChange() {
-    console.log('Redo')
-    Workspace.workspaceRedo()
+    UndoUtils.workspaceRedo();
   }
 
-  enableButton(type){
-    if(type=='undo')
-    return Workspace.undoStack.length<=0
-    else if(type=='redo')
-    return Workspace.redoStack.length<=0
+  enableButton(type) {
+    if (!UndoUtils.enableButtonsBool)
+      return true;
+    if (type == 'undo')
+      return UndoUtils.undoStack.length <= 0
+    else if (type == 'redo')
+      return UndoUtils.redoStack.length <= 0
   }
 
 }
