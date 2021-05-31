@@ -17,6 +17,7 @@ import { AlertService } from '../alert/alert-service/alert.service';
 import { LayoutUtils } from '../layout/ArduinoCanvasInterface';
 import { ExportJSONDialogComponent } from '../export-jsondialog/export-jsondialog.component';
 import { UndoUtils } from '../Libs/UndoUtils';
+import { ExitConfirmDialogComponent } from '../exit-confirm-dialog/exit-confirm-dialog.component';
 /**
  * Declare Raphael so that build don't throws error
  */
@@ -92,6 +93,10 @@ export class SimulatorComponent implements OnInit, OnDestroy {
    * Username
    */
   username: string;
+  /**
+   * window
+   */
+  window: any;
   /**
    * Is autolayout in progress?
    */
@@ -231,6 +236,9 @@ export class SimulatorComponent implements OnInit, OnDestroy {
     Workspace.initProperty(v => {
       this.showProperty = v;
     });
+
+    // Initializing window
+    this.window = window;
   }
   /**
    * Enable Move on Property Box
@@ -639,12 +647,17 @@ export class SimulatorComponent implements OnInit, OnDestroy {
     };
   }
 
-  undoChange() {
-    UndoUtils.workspaceUndo();
-  }
-
-  redoChange() {
-    UndoUtils.workspaceRedo();
+  // Function to Exit Project & go back to mainScreen
+  exitProject() {
+    if (Workspace.checkIfWorkspaceEmpty()) {
+      this.router.navigate(['/']);
+    } else {
+      this.dialog.open(ExitConfirmDialogComponent).afterClosed().subscribe(res => {
+        if (res) {
+          this.router.navigate(['/']);
+        }
+      });
+    }
   }
 
   enableButton(type) {
@@ -656,4 +669,11 @@ export class SimulatorComponent implements OnInit, OnDestroy {
       return UndoUtils.redoStack.length <= 0
   }
 
+  undoChange() {
+    UndoUtils.workspaceUndo();
+  }
+
+  redoChange() {
+    UndoUtils.workspaceRedo();
+  }
 }

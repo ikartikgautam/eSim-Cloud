@@ -6,7 +6,7 @@ import {
   Typography,
   TextField,
   Card,
-  Avatar,
+  Avatar
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
@@ -84,7 +84,7 @@ export default function ResetPassword () {
             fullWidth
             variant="contained"
             color="primary"
-            onClick={() => dispatch(resetPassword(email))}
+            onClick={() => { email.length > 0 && dispatch(resetPassword(email)) }}
             className={classes.submit}
             disabled={false}
           >
